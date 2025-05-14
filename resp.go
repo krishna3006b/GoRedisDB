@@ -33,4 +33,19 @@ func (r *Resp) readLine() (string, int, error) {
 	line = line[:len(line)-2] // Remove \r\n
 	return line, len(line) + 2, nil
 }
-
+func (r *Resp) Read() (Value, error) {
+	_type, err := r.reader.ReadByte()
+	if err != nil {
+		return Value{}, err
+	}
+	switch _type {
+	case '+':
+		line, _, err := r.readLine()
+		if err != nil {
+			return Value{}, err
+		}
+		return Value{typ: "simple", str: line}, nil
+	default:
+		return Value{}, fmt.Errorf("unsupported RESP type: %v", string(_type))
+	}
+}

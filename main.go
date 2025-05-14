@@ -25,5 +25,18 @@ func main() {
 		go handleConnection(conn)
 	}
 }
+func handleConnection(conn net.Conn) {
+	defer conn.Close()
+	resp := NewResp(conn)
+
+	for {
+		cmd, err := resp.Read()
+		if err != nil {
+			fmt.Fprintf(conn, "-ERR %v\r\n", err)
+			return
+		}
+		handleCommand(conn, cmd)
+	}
+}
 
 
